@@ -1,0 +1,37 @@
+{
+    "APIKey": "",
+    "InstanceId": "",
+    "DBConf": {
+        "Driver": "mysql",
+        "Server": "127.0.0.1",
+        "Database": "assetdb",
+        "Authentication": "SQL",
+        "UserName": "dbuserid",
+        "Password": "dbpassword",
+        "Port": 3306,
+        "Encrypt": false
+    },
+    "Query":"SELECT d.h_entity_l_id AS lid, al.h_name AS lname, d.h_entity_r_id AS rid, ar.h_name AS rname, d.h_dependency AS dep, i.h_impact AS imp FROM h_cmdb_config_items_dependency d LEFT JOIN h_cmdb_assets al ON d.h_entity_l_id = al.h_pk_asset_id LEFT JOIN h_cmdb_assets ar ON d.h_entity_r_id = ar.h_pk_asset_id LEFT JOIN h_cmdb_config_items_impact i ON d.h_entity_l_id = i.h_entity_l_id AND d.h_entity_r_id = i.h_entity_r_id",
+    "AssetIdentifier": {
+        "Parent": "lname",
+        "Child": "rname",
+        "Dependency": "dep",
+        "Impact":"imp",
+        "Hornbill": "Name"
+    },
+    "DepencencyMapping": {
+        "SourceDependency":"HornbillDependency",
+        "Runs":"Runs",
+        "Runs On":"Runs On",
+        "Hosts":"Hosts",
+        "Hosted On":"Hosted On",
+        "Members":"Members",
+        "Member Of":"Member Of"
+    },
+    "ImpactMapping": {
+        "SourceImpact":"HornbillImpact",
+        "Low":"Low",
+        "Medium":"Medium",
+        "High":"High"
+    }
+}
