@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	//SQL Package
+
 	hornbillHelpers "github.com/hornbill/goHornbillHelpers"
 	"github.com/jmoiron/sqlx"
 
@@ -73,7 +74,7 @@ func buildConnectionString() string {
 }
 
 //queryDatabase -- Query Asset Relationships Database
-func queryDatabase() error {
+func queryDatabase(delete bool) error {
 	connString := buildConnectionString()
 	if connString == "" {
 		hornbillHelpers.Logger(4, " [DATABASE] Database Connection String Empty. Check the DBConf section of your configuration.", true, logFileName)
@@ -93,10 +94,18 @@ func queryDatabase() error {
 		return err
 	}
 	hornbillHelpers.Logger(3, "[DATABASE] Connection Successful", true, logFileName)
-	hornbillHelpers.Logger(3, "[DATABASE] Running database query for asset relationships. Please wait...", true, logFileName)
-	hornbillHelpers.Logger(3, "[DATABASE] Query: "+importConf.Query, false, logFileName)
+	sqlQuery := importConf.Query
+	if delete {
+		hornbillHelpers.Logger(3, "[DATABASE] Running database query for asset relationship removals. Please wait...", true, logFileName)
+		sqlQuery = importConf.RemoveQuery
+	} else {
+		hornbillHelpers.Logger(3, "[DATABASE] Running database query for asset relationships. Please wait...", true, logFileName)
+
+	}
+
+	hornbillHelpers.Logger(3, "[DATABASE] Query: "+sqlQuery, false, logFileName)
 	//Run Query
-	rows, err := db.Queryx(importConf.Query)
+	rows, err := db.Queryx(sqlQuery)
 	if err != nil {
 		hornbillHelpers.Logger(4, " [DATABASE] Database Query Error: "+fmt.Sprintf("%v", err), true, logFileName)
 		return err
@@ -114,10 +123,18 @@ func queryDatabase() error {
 			hornbillHelpers.Logger(4, " [DATABASE] Data Unmarshal Error: "+fmt.Sprintf("%v", err), true, logFileName)
 		} else {
 			//Stick marshalled data map in to parent slice
-			assetRelationships = append(assetRelationships, results)
+			if delete {
+				assetDeleteRelationships = append(assetDeleteRelationships, results)
+			} else {
+				assetRelationships = append(assetRelationships, results)
+			}
 			intAssetSuccess++
 		}
 	}
-	hornbillHelpers.Logger(3, "[DATABASE] "+strconv.Itoa(intAssetSuccess)+" of "+strconv.Itoa(intAssetCount)+" asset relationship records successfully retrieved ready for processing.", true, logFileName)
+	if delete {
+		hornbillHelpers.Logger(3, "[DATABASE] "+strconv.Itoa(intAssetSuccess)+" of "+strconv.Itoa(intAssetCount)+" asset relationship removal records successfully retrieved ready for processing.", true, logFileName)
+	} else {
+		hornbillHelpers.Logger(3, "[DATABASE] "+strconv.Itoa(intAssetSuccess)+" of "+strconv.Itoa(intAssetCount)+" asset relationship records successfully retrieved ready for processing.", true, logFileName)
+	}
 	return nil
 }

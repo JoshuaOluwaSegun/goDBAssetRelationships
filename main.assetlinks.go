@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"errors"
 	"fmt"
+	"strconv"
 	"strings"
 
 	hornbillHelpers "github.com/hornbill/goHornbillHelpers"
@@ -138,6 +139,38 @@ func linkAsset(lid, rid string) error {
 	}
 	if xmlResponse.Status != "ok" {
 		retError := "linkAsset:Xmlmc:" + xmlResponse.State.ErrorRet
+		return errors.New(retError)
+	}
+	return nil
+}
+
+func unlinkAsset(lid, rid string) error {
+	espXmlmc.SetParam("leftEntityId", lid)
+	espXmlmc.SetParam("leftEntityType", "Asset")
+	espXmlmc.SetParam("rightEntityId", rid)
+	espXmlmc.SetParam("rightEntityType", "Asset")
+	espXmlmc.SetParam("removeBothSides", strconv.FormatBool(importConf.RemoveAssetIdentifier.RemoveBothSides))
+	if configDryrun {
+		hornbillHelpers.Logger(3, "[DRYRUN] [UNLINK] [DELETE] "+espXmlmc.GetParam(), false, logFileName)
+		espXmlmc.ClearParam()
+		return nil
+	}
+
+	linkAssetResult, err := espXmlmc.Invoke("apps/com.hornbill.servicemanager/Asset", "unlinkAsset")
+
+	if err != nil {
+		retError := "unlinkAsset:Invoke:" + err.Error()
+		return errors.New(retError)
+	}
+
+	var xmlResponse methodCallResult
+	err = xml.Unmarshal([]byte(linkAssetResult), &xmlResponse)
+	if err != nil {
+		retError := "unlinkAsset:Unmarshal:" + err.Error()
+		return errors.New(retError)
+	}
+	if xmlResponse.Status != "ok" {
+		retError := "unlinkAsset:Xmlmc:" + xmlResponse.State.ErrorRet
 		return errors.New(retError)
 	}
 	return nil

@@ -33,5 +33,15 @@
         "Low":"Low",
         "Medium":"Medium",
         "High":"High"
+    },
+    "RemoveLinks": false,
+    "RemoveQuery":"SELECT d.h_entity_l_id AS lid, al.h_name AS lname, d.h_entity_r_id AS rid, ar.h_name AS rname, d.h_dependency AS dep, i.h_impact AS imp FROM h_cmdb_config_items_dependency d LEFT JOIN h_cmdb_assets al ON d.h_entity_l_id = al.h_pk_asset_id LEFT JOIN h_cmdb_assets ar ON d.h_entity_r_id = ar.h_pk_asset_id LEFT JOIN h_cmdb_config_items_impact i ON d.h_entity_l_id = i.h_entity_l_id AND d.h_entity_r_id = i.h_entity_r_id",
+    "RemoveAssetIdentifier": {
+        "Parent": "lname",
+        "Child": "rname",
+        "Dependency": "dep",
+        "Impact":"imp",
+        "Hornbill": "Name",
+        "RemoveBothSides": false
     }
 }

@@ -58,17 +58,31 @@ func main() {
 	cacheHornbillRecords()
 
 	//Get Asset Relationships from DB
-	err = queryDatabase()
+	err = queryDatabase(false)
 	if err != nil {
 		os.Exit(1)
 	}
 
-	if len(assetRelationships) == 0 {
-		hornbillHelpers.Logger(4, "No asset relationship records returned from database query", true, logFileName)
+	if importConf.RemoveLinks {
+		//Get Asset Removal Relationships from DB
+		err = queryDatabase(true)
+		if err != nil {
+			os.Exit(1)
+		}
+	}
+
+	if len(assetRelationships) == 0 && len(assetDeleteRelationships) == 0 {
+		hornbillHelpers.Logger(4, "No asset relationship or removal records returned from database queries", true, logFileName)
 		os.Exit(1)
 	}
 
+	//Process Relationship Create/Update
 	processRelationships()
+
+	if importConf.RemoveLinks {
+		//Process Relationship Removals
+		processRelationshipRemovals()
+	}
 
 	//Output
 	hornbillHelpers.Logger(2, "Processing Complete!", true, logFileName)
@@ -86,7 +100,18 @@ func main() {
 	hornbillHelpers.Logger(2, "* Impact Records Skipped: "+strconv.Itoa(counters.impsSkipped), true, logFileName)
 	hornbillHelpers.Logger(2, "* Impact Records Failed: "+strconv.Itoa(counters.impsFailed), true, logFileName)
 	hornbillHelpers.Logger(2, "* Impact Records Update Failed: "+strconv.Itoa(counters.impsUpdateFailed), true, logFileName)
-
+	if importConf.RemoveLinks {
+		hornbillHelpers.Logger(2, "* Remove Relationship Records Found: "+strconv.Itoa(len(assetDeleteRelationships)), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Asset Links Success: "+strconv.Itoa(counters.removeLinksSuccess), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Asset Links Skipped (doesn't exist): "+strconv.Itoa(counters.removeLinksSkipped), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Asset Links Failed: "+strconv.Itoa(counters.removeLinksFailed), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Dependency Records Success: "+strconv.Itoa(counters.removeDepsSuccess), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Dependency Records Skipped: "+strconv.Itoa(counters.removeDepsSkipped), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Dependency Records Failed: "+strconv.Itoa(counters.removeDepsFailed), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Impact Records Success: "+strconv.Itoa(counters.removeImpsSuccess), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Impact Records Skipped: "+strconv.Itoa(counters.removeImpsSkipped), true, logFileName)
+		hornbillHelpers.Logger(2, "* Remove Impact Records Failed: "+strconv.Itoa(counters.removeImpsFailed), true, logFileName)
+	}
 }
 
 func cacheHornbillRecords() {

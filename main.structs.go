@@ -8,58 +8,71 @@ import (
 
 //----- Constants -----
 const (
-	version       = "1.0.0"
+	version       = "1.1.0"
 	xmlmcPageSize = 100
 )
 
 //----- Variables -----
 var (
-	assetCount         int
-	assets             = make(map[string]assetDetailsStruct)
-	assetLinks         = make(map[string]assetLinkStruct)
-	assetDependencies  = make(map[string]assetDependencyStruct)
-	assetImpacts       = make(map[string]assetImpactStruct)
-	assetRelationships []map[string]interface{}
-	maxLogFileSize     int64
-	counters           counterTypeStruct
-	configDryrun       bool
-	configFileName     string
-	configManager      bool
-	configVersion      bool
-	endTime            time.Duration
-	espXmlmc           *apiLib.XmlmcInstStruct
-	importConf         sqlImportConfStruct
-	logFileName        string
-	startTime          time.Time
-	timeNow            string
+	assetCount               int
+	assets                   = make(map[string]assetDetailsStruct)
+	assetLinks               = make(map[string]assetLinkStruct)
+	assetDependencies        = make(map[string]assetDependencyStruct)
+	assetImpacts             = make(map[string]assetImpactStruct)
+	assetRelationships       []map[string]interface{}
+	assetDeleteRelationships []map[string]interface{}
+	maxLogFileSize           int64
+	counters                 counterTypeStruct
+	configDryrun             bool
+	configFileName           string
+	configManager            bool
+	configVersion            bool
+	endTime                  time.Duration
+	espXmlmc                 *apiLib.XmlmcInstStruct
+	importConf               sqlImportConfStruct
+	logFileName              string
+	startTime                time.Time
+	timeNow                  string
 )
 
 type counterTypeStruct struct {
-	linksCreated     int
-	linksSkipped     int
-	linksFailed      int
-	depsCreated      int
-	depsUpdated      int
-	depsSkipped      int
-	depsUpdateFailed int
-	depsFailed       int
-	impsCreated      int
-	impsUpdated      int
-	impsSkipped      int
-	impsUpdateFailed int
-	impsFailed       int
+	linksCreated       int
+	linksSkipped       int
+	linksFailed        int
+	depsCreated        int
+	depsUpdated        int
+	depsSkipped        int
+	depsUpdateFailed   int
+	depsFailed         int
+	impsCreated        int
+	impsUpdated        int
+	impsSkipped        int
+	impsUpdateFailed   int
+	impsFailed         int
+	removeLinksSuccess int
+	removeLinksSkipped int
+	removeLinksFailed  int
+	removeDepsSuccess  int
+	removeDepsSkipped  int
+	removeDepsFailed   int
+	removeImpsSuccess  int
+	removeImpsSkipped  int
+	removeImpsFailed   int
 }
 
 //-- Config Structs
 type sqlImportConfStruct struct {
-	APIKey            string
-	InstanceID        string
-	LogSizeBytes      int64
-	DBConf            sqlConfStruct
-	Query             string
-	AssetIdentifier   assetIdentifierStruct
-	DepencencyMapping map[string]string
-	ImpactMapping     map[string]string
+	APIKey                string
+	InstanceID            string
+	LogSizeBytes          int64
+	DBConf                sqlConfStruct
+	Query                 string
+	AssetIdentifier       assetIdentifierStruct
+	DepencencyMapping     map[string]string
+	ImpactMapping         map[string]string
+	RemoveLinks           bool
+	RemoveQuery           string
+	RemoveAssetIdentifier assetIdentifierStruct
 }
 
 type sqlConfStruct struct {
@@ -74,11 +87,12 @@ type sqlConfStruct struct {
 }
 
 type assetIdentifierStruct struct {
-	Parent     string
-	Child      string
-	Dependency string
-	Impact     string
-	Hornbill   string
+	Parent          string
+	Child           string
+	Dependency      string
+	Impact          string
+	Hornbill        string
+	RemoveBothSides bool
 }
 
 //-- XMLMC Call Structs

@@ -51,6 +51,17 @@ Example JSON File:
         "Low":"Low",
         "Medium":"Medium",
         "High":"High"
+    },
+    ,
+    "RemoveLinks": false,
+    "RemoveQuery":"SELECT d.h_entity_l_id AS lid, al.h_name AS lname, d.h_entity_r_id AS rid, ar.h_name AS rname, d.h_dependency AS dep, i.h_impact AS imp FROM h_cmdb_config_items_dependency d LEFT JOIN h_cmdb_assets al ON d.h_entity_l_id = al.h_pk_asset_id LEFT JOIN h_cmdb_assets ar ON d.h_entity_r_id = ar.h_pk_asset_id LEFT JOIN h_cmdb_config_items_impact i ON d.h_entity_l_id = i.h_entity_l_id AND d.h_entity_r_id = i.h_entity_r_id",
+    "RemoveAssetIdentifier": {
+        "Parent": "lname",
+        "Child": "rname",
+        "Dependency": "dep",
+        "Impact":"imp",
+        "Hornbill": "Name",
+        "RemoveBothSides": true
     }
 }
 ```
@@ -89,6 +100,18 @@ Example JSON File:
     - `Description` - This will attempt to match the Hornbill asset using the Description field
 - `DependencyMapping` - an object containing properties to match the dependency column output from the `Query` to the available Hornbill dependency values. The property names should be the dependencies as expected from the `Query` output, and their values should be the matching depencency from your Hornbill instance
 - `ImpactMapping` - an object containing properties to match the impact column output from the `Query` to the available Hornbill impact values. The property names should be the impacts as expected from the `Query` output, and their values should be the matching impact from your Hornbill instance
+- `RemoveLinks` - Boolean true or flalse, defines whether or not to attempt removal of asset reltionship records
+- `RemoveQuery` The basic SQL query to retrieve records for asset relationship removal from the data source
+- `RemoveAssetIdentifier` - an object containing details to match asset information returned from the `RemovalQuery`, above, to existing asset and relationship records in your Hornbill instance:
+  - `Parent` - specifies the column from the above `RemoveQuery` that holds the Parent asset unique identifier
+  - `Child` - specifies the column from the above `RemoveQuery` that holds the Child asset unique identifier
+  - `Dependency` - specifies the column from the above `RemoveQuery` that holds the value of the Dependency
+  - `Impact` - specifies the column from the above `RemoveQuery` that holds the value of the Impact
+  - `Hornbill` - specifies which column to use from the Hornbill asset records to match with the `Parent` and `Child` column output from the `RemoveQuery`. The following values are supported:
+    - `Name` - This will attempt to match the Hornbill asset using the Name field
+    - `Tag` - This will attempt to match the Hornbill asset using the Asset Tag field
+    - `Description` - This will attempt to match the Hornbill asset using the Description field
+  - `RemoveBothSides` - Boolean true or false, if the links on both sides of the relationship need to be removed
 
 ## Execute
 

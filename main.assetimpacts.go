@@ -173,3 +173,31 @@ func updateImpact(id, impact string) error {
 	}
 	return nil
 }
+
+func deleteImpact(id string) error {
+	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("entity", "ConfigurationItemsImpact")
+	espXmlmc.SetParam("keyValue", id)
+	if configDryrun {
+		hornbillHelpers.Logger(3, "[DRYRUN] [IMPACT] [DELETE] "+espXmlmc.GetParam(), false, logFileName)
+		espXmlmc.ClearParam()
+		return nil
+	}
+	linkAssetResult, err := espXmlmc.Invoke("data", "entityDeleteRecord")
+	if err != nil {
+		retError := "deleteImpact:Invoke:" + err.Error()
+		return errors.New(retError)
+	}
+
+	var xmlResponse methodCallResult
+	err = xml.Unmarshal([]byte(linkAssetResult), &xmlResponse)
+	if err != nil {
+		retError := "deleteImpact:Unmarshal:" + err.Error()
+		return errors.New(retError)
+	}
+	if xmlResponse.Status != "ok" {
+		retError := "deleteImpact:Invoke:" + xmlResponse.State.ErrorRet
+		return errors.New(retError)
+	}
+	return nil
+}
