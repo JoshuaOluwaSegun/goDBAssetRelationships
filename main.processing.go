@@ -27,7 +27,7 @@ func processRelationships() {
 			hornbillHelpers.Logger(5, "Could not find Parent asset: ["+parentName+"]", false, logFileName)
 			continue
 		}
-		if parentAssetID == "" {
+		if childAssetID == "" {
 			hornbillHelpers.Logger(5, "Could not find Child asset: ["+childName+"]", false, logFileName)
 			continue
 		}
@@ -167,7 +167,7 @@ func processRelationshipRemovals() {
 			hornbillHelpers.Logger(5, "Could not find Parent asset: ["+parentName+"]", false, logFileName)
 			continue
 		}
-		if parentAssetID == "" {
+		if childAssetID == "" {
 			hornbillHelpers.Logger(5, "Could not find Child asset: ["+childName+"]", false, logFileName)
 			continue
 		}

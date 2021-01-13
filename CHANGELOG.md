@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.1.1 (January 13th, 2021)
+
+Fix:
+
+- Correction in error reporting when child asset is not found 
+
 ## 1.1.0 (February 24th, 2020)
 
 Feature:
