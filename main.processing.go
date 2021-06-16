@@ -4,13 +4,12 @@ import (
 	"fmt"
 	"strconv"
 
-	hornbillHelpers "github.com/hornbill/goHornbillHelpers"
 	"github.com/hornbill/pb"
 )
 
 func processRelationships() {
 
-	hornbillHelpers.Logger(1, "Processing "+strconv.Itoa(len(assetRelationships))+" found relationship records...", true, logFileName)
+	logger(1, "Processing "+strconv.Itoa(len(assetRelationships))+" found relationship records...", true, true)
 	bar := pb.New(len(assetRelationships))
 	bar.ShowPercent = false
 	bar.ShowCounters = true
@@ -24,15 +23,15 @@ func processRelationships() {
 		parentAssetID := getAssetID(parentName)
 		childAssetID := getAssetID(childName)
 		if parentAssetID == "" {
-			hornbillHelpers.Logger(5, "Could not find Parent asset: ["+parentName+"]", false, logFileName)
+			logger(5, "Could not find Parent asset: ["+parentName+"]", false, false)
 			continue
 		}
 		if childAssetID == "" {
-			hornbillHelpers.Logger(5, "Could not find Child asset: ["+childName+"]", false, logFileName)
+			logger(5, "Could not find Child asset: ["+childName+"]", false, false)
 			continue
 		}
 
-		hornbillHelpers.Logger(1, "Processing "+parentName+" ["+parentAssetID+"] to "+childAssetID+" ["+childName+"]", false, logFileName)
+		logger(1, "Processing "+parentName+" ["+parentAssetID+"] to "+childAssetID+" ["+childName+"]", false, false)
 
 		//Process Service Manager asset link first
 		pcLinkIDs := parentAssetID + ":" + childAssetID
@@ -45,29 +44,24 @@ func processRelationships() {
 			err := linkAsset(parentAssetID, childAssetID)
 			if err != nil {
 				counters.linksFailed++
-				hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+				logger(4, err.Error(), false, true)
 				continue
 			} else {
 				counters.linksCreated++
 				if !configDryrun {
-					hornbillHelpers.Logger(1, "Linked successfully", false, logFileName)
+					logger(1, "Linked successfully", false, false)
 				}
 			}
 		} else {
 			counters.linksSkipped++
-			hornbillHelpers.Logger(1, "Link already exists between assets", false, logFileName)
-		}
-
-		if !configManager {
-			//Break out if config manager isn't installed
-			continue
+			logger(1, "Link already exists between assets", false, false)
 		}
 
 		//Sort out dependency record
 		recDependency := fmt.Sprintf("%s", rel[importConf.AssetIdentifier.Dependency])
 		dependency, depMapped := importConf.DepencencyMapping[recDependency]
 		if !depMapped {
-			hornbillHelpers.Logger(5, "Dependency ["+recDependency+"] not found in mapping, so using ["+recDependency+"]", false, logFileName)
+			logger(5, "Dependency ["+recDependency+"] not found in mapping, so using ["+recDependency+"]", false, false)
 			dependency = recDependency
 		}
 		depRecord, pcdepok := assetDependencies[pcLinkIDs]
@@ -76,12 +70,12 @@ func processRelationships() {
 			err := addDependency(parentAssetID, childAssetID, dependency)
 			if err != nil {
 				counters.depsFailed++
-				hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+				logger(4, err.Error(), false, true)
 				continue
 			} else {
 				counters.depsCreated++
 				if !configDryrun {
-					hornbillHelpers.Logger(1, "Dependency ["+dependency+"] created sucessfully", false, logFileName)
+					logger(1, "Dependency ["+dependency+"] created sucessfully", false, false)
 				}
 			}
 		} else {
@@ -90,17 +84,17 @@ func processRelationships() {
 				err := updateDependency(depRecord.ID, dependency)
 				if err != nil {
 					counters.depsUpdateFailed++
-					hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+					logger(4, err.Error(), false, true)
 				} else {
 					counters.depsUpdated++
 					if !configDryrun {
-						hornbillHelpers.Logger(1, "Dependency ["+dependency+"] updated successfully", false, logFileName)
+						logger(1, "Dependency ["+dependency+"] updated successfully", false, false)
 					}
 				}
 
 			} else {
 				counters.depsSkipped++
-				hornbillHelpers.Logger(1, "Dependency ["+dependency+"] already exists between assets", false, logFileName)
+				logger(1, "Dependency ["+dependency+"] already exists between assets", false, false)
 			}
 		}
 
@@ -108,7 +102,7 @@ func processRelationships() {
 		recImpact := fmt.Sprintf("%s", rel[importConf.AssetIdentifier.Impact])
 		impact, impMapped := importConf.ImpactMapping[recImpact]
 		if !impMapped {
-			hornbillHelpers.Logger(5, "Impact ["+recImpact+"] not found in mapping.", false, logFileName)
+			logger(5, "Impact ["+recImpact+"] not found in mapping.", false, false)
 			impact = recImpact
 		}
 		impRecord, pcimpok := assetImpacts[pcLinkIDs]
@@ -117,12 +111,12 @@ func processRelationships() {
 			err := addImpact(parentAssetID, childAssetID, impact)
 			if err != nil {
 				counters.impsFailed++
-				hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+				logger(4, err.Error(), false, true)
 				continue
 			} else {
 				counters.impsCreated++
 				if !configDryrun {
-					hornbillHelpers.Logger(1, "Impact ["+impact+"] created successfully", false, logFileName)
+					logger(1, "Impact ["+impact+"] created successfully", false, false)
 				}
 			}
 		} else {
@@ -131,16 +125,16 @@ func processRelationships() {
 				err := updateImpact(impRecord.ID, impact)
 				if err != nil {
 					counters.impsUpdateFailed++
-					hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+					logger(4, err.Error(), false, true)
 				} else {
 					counters.impsUpdated++
 					if !configDryrun {
-						hornbillHelpers.Logger(1, "Impact ["+impact+"] updated successfully", false, logFileName)
+						logger(1, "Impact ["+impact+"] updated successfully", false, false)
 					}
 				}
 			} else {
 				counters.impsSkipped++
-				hornbillHelpers.Logger(1, "Impact ["+impact+"] already exists between assets", false, logFileName)
+				logger(1, "Impact ["+impact+"] already exists between assets", false, false)
 			}
 		}
 
@@ -150,7 +144,7 @@ func processRelationships() {
 
 func processRelationshipRemovals() {
 
-	hornbillHelpers.Logger(1, "Processing "+strconv.Itoa(len(assetDeleteRelationships))+" found relationship removal records...", true, logFileName)
+	logger(1, "Processing "+strconv.Itoa(len(assetDeleteRelationships))+" found relationship removal records...", true, true)
 	bar := pb.New(len(assetDeleteRelationships))
 	bar.ShowPercent = false
 	bar.ShowCounters = true
@@ -164,15 +158,15 @@ func processRelationshipRemovals() {
 		parentAssetID := getAssetID(parentName)
 		childAssetID := getAssetID(childName)
 		if parentAssetID == "" {
-			hornbillHelpers.Logger(5, "Could not find Parent asset: ["+parentName+"]", false, logFileName)
+			logger(5, "Could not find Parent asset: ["+parentName+"]", false, false)
 			continue
 		}
 		if childAssetID == "" {
-			hornbillHelpers.Logger(5, "Could not find Child asset: ["+childName+"]", false, logFileName)
+			logger(5, "Could not find Child asset: ["+childName+"]", false, false)
 			continue
 		}
 
-		hornbillHelpers.Logger(1, "Processing removal of "+parentName+" ["+parentAssetID+"] link to "+childAssetID+" ["+childName+"]", false, logFileName)
+		logger(1, "Processing removal of "+parentName+" ["+parentAssetID+"] link to "+childAssetID+" ["+childName+"]", false, false)
 
 		//Process Service Manager asset link first
 		pcLinkIDs := parentAssetID + ":" + childAssetID
@@ -182,38 +176,33 @@ func processRelationshipRemovals() {
 
 		if !cpok && !pcok {
 			counters.removeLinksSkipped++
-			hornbillHelpers.Logger(1, "Link doesn't exist between assets", false, logFileName)
+			logger(1, "Link doesn't exist between assets", false, false)
 		} else {
 			//Link doesn't exist, go add it
 			err := unlinkAsset(parentAssetID, childAssetID)
 			if err != nil {
 				counters.removeLinksFailed++
-				hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+				logger(4, err.Error(), false, true)
 				continue
 			} else {
 				counters.removeLinksSuccess++
 				if !configDryrun {
-					hornbillHelpers.Logger(1, "Unlinked successfully", false, logFileName)
+					logger(1, "Unlinked successfully", false, false)
 				}
 			}
-		}
-
-		if !configManager {
-			//Break out if config manager isn't installed
-			continue
 		}
 
 		//Sort out dependency record
 		recDependency := fmt.Sprintf("%s", rel[importConf.RemoveAssetIdentifier.Dependency])
 		dependency, depMapped := importConf.DepencencyMapping[recDependency]
 		if !depMapped {
-			hornbillHelpers.Logger(5, "Dependency ["+recDependency+"] not found in mapping, so using ["+recDependency+"]", false, logFileName)
+			logger(5, "Dependency ["+recDependency+"] not found in mapping, so using ["+recDependency+"]", false, false)
 			dependency = recDependency
 		}
 		depRecord, pcdepok := assetDependencies[pcLinkIDs]
 		if !pcdepok {
 			//Dependency doesn't exist
-			hornbillHelpers.Logger(1, "Dependency ["+dependency+"] doesn't exist", false, logFileName)
+			logger(1, "Dependency ["+dependency+"] doesn't exist", false, false)
 			counters.removeDepsSkipped++
 		} else {
 			//Check dependency for match
@@ -221,17 +210,17 @@ func processRelationshipRemovals() {
 				err := deleteDependency(depRecord.ID)
 				if err != nil {
 					counters.removeDepsFailed++
-					hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+					logger(4, err.Error(), false, true)
 				} else {
 					counters.removeDepsSuccess++
 					if !configDryrun {
-						hornbillHelpers.Logger(1, "Dependency ["+dependency+"] removed successfully", false, logFileName)
+						logger(1, "Dependency ["+dependency+"] removed successfully", false, false)
 					}
 				}
 
 			} else {
 				counters.removeDepsSkipped++
-				hornbillHelpers.Logger(1, "Dependency ["+dependency+"] doesn't match record dependency type ["+depRecord.Dependency+"]", false, logFileName)
+				logger(1, "Dependency ["+dependency+"] doesn't match record dependency type ["+depRecord.Dependency+"]", false, false)
 			}
 		}
 
@@ -239,13 +228,13 @@ func processRelationshipRemovals() {
 		recImpact := fmt.Sprintf("%s", rel[importConf.RemoveAssetIdentifier.Impact])
 		impact, impMapped := importConf.ImpactMapping[recImpact]
 		if !impMapped {
-			hornbillHelpers.Logger(5, "Impact ["+recImpact+"] not found in mapping.", false, logFileName)
+			logger(5, "Impact ["+recImpact+"] not found in mapping.", false, false)
 			impact = recImpact
 		}
 		impRecord, pcimpok := assetImpacts[pcLinkIDs]
 		if !pcimpok {
 			//Impact doesn't exist
-			hornbillHelpers.Logger(1, "Impact ["+impact+"] doesn't exist", false, logFileName)
+			logger(1, "Impact ["+impact+"] doesn't exist", false, false)
 			counters.removeImpsSkipped++
 		} else {
 			//Check impact for match
@@ -253,16 +242,16 @@ func processRelationshipRemovals() {
 				err := deleteImpact(impRecord.ID)
 				if err != nil {
 					counters.removeImpsFailed++
-					hornbillHelpers.Logger(4, err.Error(), false, logFileName)
+					logger(4, err.Error(), false, true)
 				} else {
 					counters.removeImpsSuccess++
 					if !configDryrun {
-						hornbillHelpers.Logger(1, "Impact ["+impact+"] removed successfully", false, logFileName)
+						logger(1, "Impact ["+impact+"] removed successfully", false, false)
 					}
 				}
 			} else {
 				counters.removeImpsSkipped++
-				hornbillHelpers.Logger(1, "Impact ["+impact+"] doesn't match record impact type ["+impRecord.Impact+"]", false, logFileName)
+				logger(1, "Impact ["+impact+"] doesn't match record impact type ["+impRecord.Impact+"]", false, false)
 			}
 		}
 

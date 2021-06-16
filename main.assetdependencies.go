@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	hornbillHelpers "github.com/hornbill/goHornbillHelpers"
 	"github.com/hornbill/pb"
 )
 
@@ -19,11 +18,11 @@ func cacheAssetDependencies() error {
 	}
 
 	if assetDependencyCount == 0 {
-		hornbillHelpers.Logger(1, "No existing asset dependencies could be found", true, logFileName)
+		logger(1, "No existing asset dependencies could be found", true, true)
 		return nil
 	}
 	var i int
-	hornbillHelpers.Logger(1, "Retrieving "+fmt.Sprint(assetDependencyCount)+" asset dependencies from Hornbill. Please wait...", true, logFileName)
+	logger(1, "Retrieving "+fmt.Sprint(assetDependencyCount)+" asset dependencies from Hornbill. Please wait...", true, true)
 
 	bar := pb.New(assetDependencyCount)
 	bar.ShowPercent = false
@@ -45,16 +44,16 @@ func cacheAssetDependencies() error {
 		bar.Add(xmlmcPageSize)
 	}
 	bar.Finish()
-	hornbillHelpers.Logger(1, fmt.Sprint(len(assetDependencies))+" asset dependencies cached.", true, logFileName)
+	logger(1, fmt.Sprint(len(assetDependencies))+" asset dependencies cached.", true, true)
 	return err
 }
 
 func getAssetDependencyCount() (int, error) {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("table", "h_cmdb_config_items_dependency")
 	espXmlmc.SetParam("where", "h_entity_l_name = 'asset' AND h_entity_r_name = 'asset'")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [DEPENDENCY] [COUNT] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [DEPENDENCY] [COUNT] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssetLinksCount, err := espXmlmc.Invoke("data", "getRecordCount")
 	if err != nil {
@@ -77,14 +76,14 @@ func getAssetDependencyCount() (int, error) {
 
 func getAssetDependencies(rowStart, limit int) ([]assetDependencyStruct, error) {
 	var assetDependenciesBlock []assetDependencyStruct
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("queryName", "getDependencies")
 	espXmlmc.OpenElement("queryParams")
 	espXmlmc.SetParam("rowstart", fmt.Sprint(rowStart))
 	espXmlmc.SetParam("limit", fmt.Sprint(limit))
 	espXmlmc.CloseElement("queryParams")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [DEPENDENCY] [GET] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [DEPENDENCY] [GET] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssets, err := espXmlmc.Invoke("data", "queryExec")
 	if err != nil {
@@ -106,7 +105,7 @@ func getAssetDependencies(rowStart, limit int) ([]assetDependencyStruct, error) 
 }
 
 func addDependency(lid, rid, dependency string) error {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("entity", "ConfigurationItemsDependency")
 	espXmlmc.OpenElement("primaryEntityData")
 	espXmlmc.OpenElement("record")
@@ -118,7 +117,7 @@ func addDependency(lid, rid, dependency string) error {
 	espXmlmc.CloseElement("record")
 	espXmlmc.CloseElement("primaryEntityData")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [DEPENDENCY] [CREATE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [DEPENDENCY] [CREATE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}
@@ -142,7 +141,7 @@ func addDependency(lid, rid, dependency string) error {
 }
 
 func updateDependency(id, dependency string) error {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("entity", "ConfigurationItemsDependency")
 	espXmlmc.OpenElement("primaryEntityData")
 	espXmlmc.OpenElement("record")
@@ -151,7 +150,7 @@ func updateDependency(id, dependency string) error {
 	espXmlmc.CloseElement("record")
 	espXmlmc.CloseElement("primaryEntityData")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [DEPENDENCY] [UPDATE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [DEPENDENCY] [UPDATE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}
@@ -175,11 +174,11 @@ func updateDependency(id, dependency string) error {
 }
 
 func deleteDependency(id string) error {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("entity", "ConfigurationItemsDependency")
 	espXmlmc.SetParam("keyValue", id)
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [DEPENDENCY] [DELETE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [DEPENDENCY] [DELETE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}

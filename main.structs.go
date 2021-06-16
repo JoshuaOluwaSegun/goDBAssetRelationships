@@ -1,15 +1,14 @@
 package main
 
 import (
-	"time"
-
 	apiLib "github.com/hornbill/goApiLib"
 )
 
 //----- Constants -----
 const (
-	version       = "1.1.1"
+	version       = "1.2.0"
 	xmlmcPageSize = 100
+	appName       = "goDBAssetRelationships"
 )
 
 //----- Variables -----
@@ -21,17 +20,13 @@ var (
 	assetImpacts             = make(map[string]assetImpactStruct)
 	assetRelationships       []map[string]interface{}
 	assetDeleteRelationships []map[string]interface{}
-	maxLogFileSize           int64
 	counters                 counterTypeStruct
 	configDryrun             bool
 	configFileName           string
-	configManager            bool
 	configVersion            bool
-	endTime                  time.Duration
 	espXmlmc                 *apiLib.XmlmcInstStruct
 	importConf               sqlImportConfStruct
 	logFileName              string
-	startTime                time.Time
 	timeNow                  string
 )
 
@@ -108,10 +103,6 @@ type stateStruct struct {
 type paramsStruct struct {
 	Count  int                  `xml:"count"`
 	Assets []assetDetailsStruct `xml:"rowData>row"`
-	Apps   []struct {
-		Name   string `xml:"name"`
-		Status string `xml:"status"`
-	} `xml:"application"`
 }
 
 type assetDetailsStruct struct {

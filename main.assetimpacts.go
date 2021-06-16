@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	hornbillHelpers "github.com/hornbill/goHornbillHelpers"
 	"github.com/hornbill/pb"
 )
 
@@ -19,11 +18,11 @@ func cacheAssetImpacts() error {
 	}
 
 	if assetImpactCount == 0 {
-		hornbillHelpers.Logger(1, "No existing asset impacts could be found", true, logFileName)
+		logger(1, "No existing asset impacts could be found", true, true)
 		return nil
 	}
 	var i int
-	hornbillHelpers.Logger(1, "Retrieving "+fmt.Sprint(assetImpactCount)+" asset impacts from Hornbill. Please wait...", true, logFileName)
+	logger(1, "Retrieving "+fmt.Sprint(assetImpactCount)+" asset impacts from Hornbill. Please wait...", true, true)
 
 	bar := pb.New(assetImpactCount)
 	bar.ShowPercent = false
@@ -45,16 +44,16 @@ func cacheAssetImpacts() error {
 		bar.Add(xmlmcPageSize)
 	}
 	bar.Finish()
-	hornbillHelpers.Logger(1, fmt.Sprint(len(assetImpacts))+" asset impact records cached.", true, logFileName)
+	logger(1, fmt.Sprint(len(assetImpacts))+" asset impact records cached.", true, true)
 	return err
 }
 
 func getAssetImpactCount() (int, error) {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("table", "h_cmdb_config_items_impact")
 	espXmlmc.SetParam("where", "h_entity_l_name = 'asset' AND h_entity_r_name = 'asset'")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [IMPACT] [COUNT] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [IMPACT] [COUNT] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssetLinksCount, err := espXmlmc.Invoke("data", "getRecordCount")
 	if err != nil {
@@ -77,14 +76,14 @@ func getAssetImpactCount() (int, error) {
 
 func getAssetImpacts(rowStart, limit int) ([]assetImpactStruct, error) {
 	var assetImpactsBlock []assetImpactStruct
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
-	espXmlmc.SetParam("queryName", "getImpacts")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
+	espXmlmc.SetParam("queryName", "getImpactsForExplorer")
 	espXmlmc.OpenElement("queryParams")
 	espXmlmc.SetParam("rowstart", fmt.Sprint(rowStart))
 	espXmlmc.SetParam("limit", fmt.Sprint(limit))
 	espXmlmc.CloseElement("queryParams")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [IMPACT] [GET] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [IMPACT] [GET] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssets, err := espXmlmc.Invoke("data", "queryExec")
 	if err != nil {
@@ -106,7 +105,7 @@ func getAssetImpacts(rowStart, limit int) ([]assetImpactStruct, error) {
 }
 
 func addImpact(lid, rid, impact string) error {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("entity", "ConfigurationItemsImpact")
 	espXmlmc.OpenElement("primaryEntityData")
 	espXmlmc.OpenElement("record")
@@ -118,7 +117,7 @@ func addImpact(lid, rid, impact string) error {
 	espXmlmc.CloseElement("record")
 	espXmlmc.CloseElement("primaryEntityData")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [IMPACT] [CREATE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [IMPACT] [CREATE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}
@@ -142,7 +141,7 @@ func addImpact(lid, rid, impact string) error {
 }
 
 func updateImpact(id, impact string) error {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("entity", "ConfigurationItemsImpact")
 	espXmlmc.OpenElement("primaryEntityData")
 	espXmlmc.OpenElement("record")
@@ -151,7 +150,7 @@ func updateImpact(id, impact string) error {
 	espXmlmc.CloseElement("record")
 	espXmlmc.CloseElement("primaryEntityData")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [IMPACT] [UPDATE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [IMPACT] [UPDATE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}
@@ -175,11 +174,11 @@ func updateImpact(id, impact string) error {
 }
 
 func deleteImpact(id string) error {
-	espXmlmc.SetParam("application", "com.hornbill.configurationmanager")
+	espXmlmc.SetParam("application", "com.hornbill.servicemanager")
 	espXmlmc.SetParam("entity", "ConfigurationItemsImpact")
 	espXmlmc.SetParam("keyValue", id)
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [IMPACT] [DELETE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [IMPACT] [DELETE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}

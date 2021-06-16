@@ -5,7 +5,6 @@ import (
 	"errors"
 	"fmt"
 
-	hornbillHelpers "github.com/hornbill/goHornbillHelpers"
 	"github.com/hornbill/pb"
 )
 
@@ -19,10 +18,10 @@ func cacheAssets() error {
 	}
 
 	if assetCount == 0 {
-		return errors.New("No assets could be found on your Hornbill instance")
+		return errors.New("no assets could be found on your hornbill instance")
 	}
 	var i int
-	hornbillHelpers.Logger(1, "Retrieving "+fmt.Sprint(assetCount)+" assets from Hornbill. Please wait...", true, logFileName)
+	logger(1, "Retrieving "+fmt.Sprint(assetCount)+" assets from Hornbill. Please wait...", true, true)
 
 	bar := pb.New(assetCount)
 	bar.ShowPercent = false
@@ -44,7 +43,7 @@ func cacheAssets() error {
 		bar.Add(xmlmcPageSize)
 	}
 	bar.Finish()
-	hornbillHelpers.Logger(1, fmt.Sprint(len(assets))+" assets cached.", true, logFileName)
+	logger(1, fmt.Sprint(len(assets))+" assets cached.", true, true)
 	return err
 }
 
@@ -67,7 +66,7 @@ func getAssetCount() (int, error) {
 	espXmlmc.SetParam("table", "h_cmdb_assets")
 
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [ASSETS] [COUNT] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [ASSETS] [COUNT] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssetCount, err := espXmlmc.Invoke("data", "getRecordCount")
 	if err != nil {
@@ -97,7 +96,7 @@ func getAssets(rowStart, limit int) ([]assetDetailsStruct, error) {
 	espXmlmc.SetParam("limit", fmt.Sprint(limit))
 	espXmlmc.CloseElement("queryParams")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [ASSETS] [GET] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [ASSETS] [GET] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssets, err := espXmlmc.Invoke("data", "queryExec")
 	if err != nil {

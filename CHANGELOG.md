@@ -1,4 +1,11 @@
 # CHANGELOG
+## 1.2.0 (June 17th, 2021)
+
+Change:
+
+- Updated tool to support move of Configuration Manager into Service Manager
+- Added version check against Github repo 
+- Improved logging back to Hornbill instance
 
 ## 1.1.1 (January 13th, 2021)
 

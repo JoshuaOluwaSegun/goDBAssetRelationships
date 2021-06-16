@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"strings"
 
-	hornbillHelpers "github.com/hornbill/goHornbillHelpers"
 	"github.com/hornbill/pb"
 )
 
@@ -21,11 +20,11 @@ func cacheAssetLinks() error {
 	}
 
 	if assetLinkCount == 0 {
-		hornbillHelpers.Logger(1, "No existing asset links could be found", true, logFileName)
+		logger(1, "No existing asset links could be found", true, true)
 		return nil
 	}
 	var i int
-	hornbillHelpers.Logger(1, "Retrieving "+fmt.Sprint(assetLinkCount)+" asset entity links from Hornbill. Please wait...", true, logFileName)
+	logger(1, "Retrieving "+fmt.Sprint(assetLinkCount)+" asset entity links from Hornbill. Please wait...", true, true)
 
 	bar := pb.New(assetLinkCount)
 	bar.ShowPercent = false
@@ -41,7 +40,7 @@ func cacheAssetLinks() error {
 		}
 		if len(blockAssetLinks) > 0 {
 			for _, v := range blockAssetLinks {
-				if strings.HasPrefix(v.IDL, assetPrefix) && strings.HasPrefix(v.IDL, assetPrefix) {
+				if strings.HasPrefix(v.IDL, assetPrefix) && strings.HasPrefix(v.IDR, assetPrefix) {
 					concatedAssets := strings.Replace(v.IDL, assetPrefix, "", 1) + ":" + strings.Replace(v.IDR, assetPrefix, "", 1)
 					assetLinks[concatedAssets] = v
 				}
@@ -50,7 +49,7 @@ func cacheAssetLinks() error {
 		bar.Add(xmlmcPageSize)
 	}
 	bar.Finish()
-	hornbillHelpers.Logger(1, fmt.Sprint(len(assetLinks))+" asset links cached.", true, logFileName)
+	logger(1, fmt.Sprint(len(assetLinks))+" asset links cached.", true, true)
 	return err
 }
 
@@ -59,7 +58,7 @@ func getAssetLinkCount() (int, error) {
 	espXmlmc.SetParam("table", "h_cmdb_links")
 	espXmlmc.SetParam("where", "h_rel_type_l = 1 AND h_rel_type_r = 1")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [LINK] [COUNT] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [LINK] [COUNT] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssetLinksCount, err := espXmlmc.Invoke("data", "getRecordCount")
 	if err != nil {
@@ -89,7 +88,7 @@ func getAssetLinks(rowStart, limit int) ([]assetLinkStruct, error) {
 	espXmlmc.SetParam("limit", fmt.Sprint(limit))
 	espXmlmc.CloseElement("queryParams")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [LINK] [GET] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [LINK] [GET] "+espXmlmc.GetParam(), false, false)
 	}
 	xmlAssets, err := espXmlmc.Invoke("data", "queryExec")
 	if err != nil {
@@ -119,7 +118,7 @@ func linkAsset(lid, rid string) error {
 	espXmlmc.SetParam("rightRelType", "1")
 	espXmlmc.SetParam("dependsOn", "0")
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [LINK] [CREATE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [LINK] [CREATE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}
@@ -151,7 +150,7 @@ func unlinkAsset(lid, rid string) error {
 	espXmlmc.SetParam("rightEntityType", "Asset")
 	espXmlmc.SetParam("removeBothSides", strconv.FormatBool(importConf.RemoveAssetIdentifier.RemoveBothSides))
 	if configDryrun {
-		hornbillHelpers.Logger(3, "[DRYRUN] [UNLINK] [DELETE] "+espXmlmc.GetParam(), false, logFileName)
+		logger(3, "[DRYRUN] [UNLINK] [DELETE] "+espXmlmc.GetParam(), false, false)
 		espXmlmc.ClearParam()
 		return nil
 	}
