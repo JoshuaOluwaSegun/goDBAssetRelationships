@@ -6,7 +6,7 @@ import (
 
 //----- Constants -----
 const (
-	version       = "1.2.0"
+	version       = "1.2.1"
 	xmlmcPageSize = 100
 	appName       = "goDBAssetRelationships"
 )

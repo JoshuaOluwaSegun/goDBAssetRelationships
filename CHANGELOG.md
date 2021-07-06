@@ -1,7 +1,14 @@
 # CHANGELOG
-## 1.2.0 (June 17th, 2021)
+
+## 1.2.1 (July 6th, 2021)
 
 Change:
+
+- Rebuilt using latest version of goApiLib, to fix possible issue with connections via a proxy
+
+## 1.2.0 (June 17th, 2021)
+
+Changes:
 
 - Updated tool to support move of Configuration Manager into Service Manager
 - Added version check against Github repo 
