@@ -18,7 +18,7 @@ versiond=${versiond// /}
 rm -rf "release/"
 mkdir release
 
-platforms="windows/386 windows/amd64 darwin/amd64"
+platforms="windows/386 windows/amd64 darwin/arm64"
 printf " ---- Building Asset Relationship Import $versiond ---- \n"
 
 printf "\n"

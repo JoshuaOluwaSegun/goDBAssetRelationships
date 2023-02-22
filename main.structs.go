@@ -4,14 +4,14 @@ import (
 	apiLib "github.com/hornbill/goApiLib"
 )
 
-//----- Constants -----
+// ----- Constants -----
 const (
-	version       = "1.2.1"
+	version       = "1.3.0"
 	xmlmcPageSize = 100
 	appName       = "goDBAssetRelationships"
 )
 
-//----- Variables -----
+// ----- Variables -----
 var (
 	assetCount               int
 	assets                   = make(map[string]assetDetailsStruct)
@@ -55,7 +55,7 @@ type counterTypeStruct struct {
 	removeImpsFailed   int
 }
 
-//-- Config Structs
+// -- Config Structs
 type sqlImportConfStruct struct {
 	APIKey                string
 	InstanceID            string
@@ -90,7 +90,7 @@ type assetIdentifierStruct struct {
 	RemoveBothSides bool
 }
 
-//-- XMLMC Call Structs
+// -- XMLMC Call Structs
 type methodCallResult struct {
 	State  stateStruct  `xml:"state"`
 	Status string       `xml:"status,attr"`

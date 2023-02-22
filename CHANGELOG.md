@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## 1.3.0 (February 22nd 2023)
+
+Change:
+
+- Complied with latest Go binaries because of security advisory.
+
 ## 1.2.1 (July 6th, 2021)
 
 Change:
